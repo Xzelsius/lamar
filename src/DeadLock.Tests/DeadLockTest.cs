@@ -31,18 +31,18 @@ public sealed class DeadLockTest
     }
 
     [Fact(Timeout = 30_000)]
-    public async Task Does_not_deadlock_IContainer()
+    public async Task Does_not_deadlock_IServiceProvider()
     {
         await using var host = await Alba.AlbaHost.For<Program>();
 
         Debug.WriteLine("#################################################################################################################");
 
-        var container = host.Services.GetRequiredService<IContainer>();
+        var container = host.Services.GetRequiredService<IServiceProvider>();
 
         var r1Singletons = new List<Type>
         {
             typeof(WolverineOptions),
-            typeof(IContainer),
+            typeof(IServiceProvider),
             typeof(IProAuthManagementService),
         };
         var r1Scoped = new List<Type>
@@ -53,7 +53,7 @@ public sealed class DeadLockTest
         var r2Singletons = new List<Type>
         {
             typeof(WolverineOptions),
-            typeof(IContainer),
+            typeof(IServiceProvider),
         };
         var r2Scoped = new List<Type>
         {
@@ -64,7 +64,7 @@ public sealed class DeadLockTest
         var r3Singletons = new List<Type>
         {
             typeof(WolverineOptions),
-            typeof(IContainer),
+            typeof(IServiceProvider),
         };
         var r3Scoped = new List<Type>
         {
@@ -75,7 +75,7 @@ public sealed class DeadLockTest
         var r4Singletons = new List<Type>
         {
             typeof(WolverineOptions),
-            typeof(IContainer),
+            typeof(IServiceProvider),
         };
         var r4Scoped = new List<Type>
         {
@@ -86,7 +86,7 @@ public sealed class DeadLockTest
         var r5Singletons = new List<Type>
         {
             typeof(WolverineOptions),
-            typeof(IContainer),
+            typeof(IServiceProvider),
         };
         var r5Scoped = new List<Type>
         {
@@ -97,7 +97,7 @@ public sealed class DeadLockTest
         var r6Singletons = new List<Type>
         {
             typeof(WolverineOptions),
-            typeof(IContainer),
+            typeof(IServiceProvider),
         };
         var r6Scoped = new List<Type>
         {
@@ -117,23 +117,23 @@ public sealed class DeadLockTest
 
         await Parallel.ForEachAsync(requests, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (request, ct) =>
         {
-            (container as Scope).WriteLine($"Start R{request.Id} (Singleton)");
+            //(container as Scope).WriteLine($"Start R{request.Id} (Singleton)");
 
-            var singletonInstances = request.Singletons.Select(t => container.GetInstance(t)).ToList();
+            var singletonInstances = request.Singletons.Select(t => container.GetRequiredService(t)).ToList();
 
-            (container as Scope).WriteLine($"End R{request.Id} (Singleton)");
+            //(container as Scope).WriteLine($"End R{request.Id} (Singleton)");
 
-            var root = singletonInstances.OfType<IContainer>().Single();
-            await using var scope = root.GetNestedContainer();
+            var root = singletonInstances.OfType<IServiceProvider>().Single();
+            using var scope = root.CreateScope();
 
-            (container as Scope).WriteLine($"Start R{request.Id} (Scoped)");
+            //(container as Scope).WriteLine($"Start R{request.Id} (Scoped)");
 
-            _ = scope.GetInstance<ITenantIdProvider>();
+            _ = scope.ServiceProvider.GetRequiredService<ITenantIdProvider>();
             // normely there would be some interaction with ITenantIdProvider here
 
-            var scopedInstances = request.Scoped.Select(t => scope.GetInstance(t)).ToList();
+            var scopedInstances = request.Scoped.Select(t => scope.ServiceProvider.GetRequiredService(t)).ToList();
 
-            (container as Scope).WriteLine($"End R{request.Id} (Scoped)");
+            //(container as Scope).WriteLine($"End R{request.Id} (Scoped)");
 
             await Task.Delay(1000);
         });

@@ -14,7 +14,7 @@ namespace DeadLock
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Host.UseLamar();
+            //builder.Host.UseLamar();
 
             // Register them services
             builder.Services.AddSingleton<WolverineOptions>();
@@ -73,55 +73,55 @@ namespace DeadLock
 
             var app = builder.Build();
 
-            app.MapGet("/r1", async (WolverineOptions o, IContainer c, IProAuthManagementService p) =>
+            app.MapGet("/r1", async (WolverineOptions o, IServiceProvider c, IProAuthManagementService p) =>
             {
-                await using var scope = c.GetNestedContainer();
-                _ = scope.GetInstance<IUserContext>();
+                using var scope = c.CreateScope();
+                _ = scope.ServiceProvider.GetRequiredService<IUserContext>();
 
                 return Results.Ok();
             });
 
-            app.MapGet("/r2", async (WolverineOptions o, IContainer c) =>
+            app.MapGet("/r2", async (WolverineOptions o, IServiceProvider c) =>
             {
-                await using var scope = c.GetNestedContainer();
-                _ = scope.GetInstance<ISecurityFilterContextFactory>();
-                _ = scope.GetInstance<IDbContextFactory<DeadLockDbContext>>();
+                using var scope = c.CreateScope();
+                _ = scope.ServiceProvider.GetRequiredService<ISecurityFilterContextFactory>();
+                _ = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DeadLockDbContext>>();
 
                 return Results.Ok();
             });
 
-            app.MapGet("/r3", async (WolverineOptions o, IContainer c) =>
+            app.MapGet("/r3", async (WolverineOptions o, IServiceProvider c) =>
             {
-                await using var scope = c.GetNestedContainer();
-                _ = scope.GetInstance<ISecurityFilterContextFactory>();
-                _ = scope.GetInstance<IDbContextFactory<DeadLockDbContext>>();
+                using var scope = c.CreateScope();
+                _ = scope.ServiceProvider.GetRequiredService<ISecurityFilterContextFactory>();
+                _ = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DeadLockDbContext>>();
 
                 return Results.Ok();
             });
 
-            app.MapGet("/r4", async (WolverineOptions o, IContainer c) =>
+            app.MapGet("/r4", async (WolverineOptions o, IServiceProvider c) =>
             {
-                await using var scope = c.GetNestedContainer();
-                _ = scope.GetInstance<IPermissionService>();
-                _ = scope.GetInstance<IUserContext>();
+                using var scope = c.CreateScope();
+                _ = scope.ServiceProvider.GetRequiredService<IPermissionService>();
+                _ = scope.ServiceProvider.GetRequiredService<IUserContext>();
 
                 return Results.Ok();
             });
 
-            app.MapGet("/r5", async (WolverineOptions o, IContainer c) =>
+            app.MapGet("/r5", async (WolverineOptions o, IServiceProvider c) =>
             {
-                await using var scope = c.GetNestedContainer();
-                _ = scope.GetInstance<ISecurityFilterContextFactory>();
-                _ = scope.GetInstance<IDbContextFactory<DeadLockDbContext>>();
+                using var scope = c.CreateScope();
+                _ = scope.ServiceProvider.GetRequiredService<ISecurityFilterContextFactory>();
+                _ = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DeadLockDbContext>>();
 
                 return Results.Ok();
             });
 
-            app.MapGet("/r6", async (WolverineOptions o, IContainer c) =>
+            app.MapGet("/r6", async (WolverineOptions o, IServiceProvider c) =>
             {
-                await using var scope = c.GetNestedContainer();
-                _ = scope.GetInstance<IDbContextFactory<DeadLockDbContext>>();
-                _ = scope.GetInstance<IUserContext>();
+                using var scope = c.CreateScope();
+                _ = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DeadLockDbContext>>();
+                _ = scope.ServiceProvider.GetRequiredService<IUserContext>();
 
                 return Results.Ok();
             });

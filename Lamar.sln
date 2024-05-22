@@ -53,14 +53,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Widget.Registration", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LamarWithMinimalApiOnNet6", "src\LamarWithMinimalApiOnNet6\LamarWithMinimalApiOnNet6.csproj", "{D39497B9-192B-4F4B-9B8D-024935124B93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalApiTests", "src\MinimalApiTests\MinimalApiTests.csproj", "{23D34C12-A3A0-4399-94A3-08616AE7C934}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApiTests", "src\MinimalApiTests\MinimalApiTests.csproj", "{23D34C12-A3A0-4399-94A3-08616AE7C934}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D6AA9FAA-7E79-48E1-A538-1FE3402991B0}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\docs.yml = .github\workflows\docs.yml
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		.github\workflows\publish_lamar.yml = .github\workflows\publish_lamar.yml
-		.github\workflows\docs.yml = .github\workflows\docs.yml
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeadLock", "src\DeadLock\DeadLock.csproj", "{6474B74B-51E1-489D-A2C4-3ABE5F598DEF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeadLock.Tests", "src\DeadLock.Tests\DeadLock.Tests.csproj", "{00B59BF3-FE19-4AFC-AC51-0C3376139BB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -164,6 +168,14 @@ Global
 		{23D34C12-A3A0-4399-94A3-08616AE7C934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23D34C12-A3A0-4399-94A3-08616AE7C934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23D34C12-A3A0-4399-94A3-08616AE7C934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6474B74B-51E1-489D-A2C4-3ABE5F598DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6474B74B-51E1-489D-A2C4-3ABE5F598DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6474B74B-51E1-489D-A2C4-3ABE5F598DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6474B74B-51E1-489D-A2C4-3ABE5F598DEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00B59BF3-FE19-4AFC-AC51-0C3376139BB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00B59BF3-FE19-4AFC-AC51-0C3376139BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00B59BF3-FE19-4AFC-AC51-0C3376139BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00B59BF3-FE19-4AFC-AC51-0C3376139BB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using JasperFx.Core.Reflection;
 
 namespace Lamar.IoC.Resolvers;
@@ -14,6 +15,7 @@ public class TransientLambdaResolver<TContainer, T> : TransientResolver<T>
 
     public override T Build(Scope scope)
     {
+        scope.WriteLine("TransientLambdaResolver: " + Name);
         return _builder(scope.As<TContainer>());
     }
 }

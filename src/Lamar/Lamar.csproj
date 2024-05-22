@@ -16,6 +16,8 @@
         <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
         <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
         <LangVersion>10.0</LangVersion>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackagFormat>snupkg</SymbolPackagFormat>
     </PropertyGroup>
 
 	<ItemGroup>

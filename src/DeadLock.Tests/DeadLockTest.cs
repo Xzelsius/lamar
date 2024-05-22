@@ -35,6 +35,8 @@ public sealed class DeadLockTest
     {
         await using var host = await Alba.AlbaHost.For<Program>();
 
+        Debug.WriteLine("#################################################################################################################");
+
         var container = host.Services.GetRequiredService<IContainer>();
 
         var r1Singletons = new List<Type>
@@ -115,17 +117,27 @@ public sealed class DeadLockTest
 
         await Parallel.ForEachAsync(requests, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (request, ct) =>
         {
+            (container as Scope).WriteLine($"Start R{request.Id} (Singleton)");
+
             var singletonInstances = request.Singletons.Select(t => container.GetInstance(t)).ToList();
+
+            (container as Scope).WriteLine($"End R{request.Id} (Singleton)");
 
             var root = singletonInstances.OfType<IContainer>().Single();
             await using var scope = root.GetNestedContainer();
+
+            (container as Scope).WriteLine($"Start R{request.Id} (Scoped)");
 
             _ = scope.GetInstance<ITenantIdProvider>();
             // normely there would be some interaction with ITenantIdProvider here
 
             var scopedInstances = request.Scoped.Select(t => scope.GetInstance(t)).ToList();
 
+            (container as Scope).WriteLine($"End R{request.Id} (Scoped)");
+
             await Task.Delay(1000);
         });
+
+        Debug.WriteLine("#################################################################################################################");
     }
 }

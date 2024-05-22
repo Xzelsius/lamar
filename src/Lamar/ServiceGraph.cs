@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using JasperFx.CodeGeneration;
 using JasperFx.Core;
@@ -313,19 +315,32 @@ public class ServiceGraph : IDisposable, IAsyncDisposable
         return ResolveFamily(serviceType).InstanceFor(name);
     }
 
+    private static int ResolveFamilyCounter = 0;
     public ServiceFamily ResolveFamily(Type serviceType)
     {
+        var id = Interlocked.Increment(ref ResolveFamilyCounter);
+
         if (_families.TryFind(serviceType, out var family))
         {
+            Debug.WriteLine($"ResolveFamily[{id}]._families.TryFind() - found: {serviceType.FullNameInCode()}");
             return family;
         }
 
+        Debug.WriteLine($"ResolveFamily[{id}]._families.TryFind() - not found: {serviceType.FullNameInCode()}");
+        Debug.WriteLine($"ResolveFamily[{id}] lock(_familiyLock) - before: {serviceType.FullNameInCode()}");
+
         lock (_familyLock)
         {
+            Debug.WriteLine($"ResolveFamily[{id}] lock(_familiyLock) - start: {serviceType.FullNameInCode()}");
+
             if (_families.TryFind(serviceType, out family))
             {
+                Debug.WriteLine($"ResolveFamily[{id}]._families.TryFind() - found: {serviceType.FullNameInCode()}");
                 return family;
             }
+
+            Debug.WriteLine($"ResolveFamily[{id}].addMissingFamily: {serviceType.FullNameInCode()}");
+            Debug.WriteLine($"ResolveFamily[{id}] lock(_familiyLock) - end: {serviceType.FullNameInCode()}");
 
             return addMissingFamily(serviceType);
         }
@@ -350,29 +365,45 @@ public class ServiceGraph : IDisposable, IAsyncDisposable
         return family;
     }
 
+
+    private static int FindResolverCounter = 0;
     public Func<Scope, object> FindResolver(Type serviceType)
     {
+        var id = Interlocked.Increment(ref FindResolverCounter);
+
         if (_byType.TryFind(serviceType, out var resolver))
         {
+            Debug.WriteLine($"FindResolver[{id}]._byType.TryFind() - found: {serviceType.FullNameInCode()}");
             return resolver;
         }
 
+        Debug.WriteLine($"FindResolver[{id}]._byType.TryFind() - not found: {serviceType.FullNameInCode()}");
+        Debug.WriteLine($"FindResolver[{id}] lock(_familyLock) - before: {serviceType.FullNameInCode()}");
+
         lock (_familyLock)
         {
+            Debug.WriteLine($"FindResolver[{id}] lock(_familyLock) - start: {serviceType.FullNameInCode()}");
+
             if (_byType.TryFind(serviceType, out resolver))
             {
+                Debug.WriteLine($"FindResolver[{id}]._byType.TryFind() - found: {serviceType.FullNameInCode()}");
+                Debug.WriteLine($"FindResolver[{id}] lock(_familyLock) - end: {serviceType.FullNameInCode()}");
                 return resolver;
             }
 
+            Debug.WriteLine($"FindResolver[{id}].ResolveFamily(): {serviceType.FullNameInCode()}");
             var family = ResolveFamily(serviceType);
 
             var instance = family.Default;
             if (instance == null)
             {
+                Debug.WriteLine($"FindResolver[{id}].ResolveFamily() - instance is null: {serviceType.FullNameInCode()}");
                 resolver = null;
             }
             else if (instance.Lifetime == ServiceLifetime.Singleton)
             {
+                Debug.WriteLine($"FindResolver[{id}].ResolveFamily() - instance is singelton: {serviceType.FullNameInCode()}");
+
                 var inner = instance.ToResolver(RootScope);
                 resolver = s =>
                 {
@@ -384,11 +415,15 @@ public class ServiceGraph : IDisposable, IAsyncDisposable
             }
             else
             {
+                Debug.WriteLine($"FindResolver[{id}].ResolveFamily() - else: {serviceType.FullNameInCode()} - {instance.GetType().FullNameInCode()}");
+
                 resolver = instance.ToResolver(RootScope);
             }
 
+            Debug.WriteLine($"FindResolver[{id}]._byType.AddOrUpdate(): {serviceType.FullNameInCode()}");
             _byType = _byType.AddOrUpdate(serviceType, resolver);
 
+            Debug.WriteLine($"FindResolver[{id}] lock(_familyLock) - end: {serviceType.FullNameInCode()}");
             return resolver;
         }
     }

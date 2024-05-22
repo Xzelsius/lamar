@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using JasperFx.CodeGeneration;
 using JasperFx.CodeGeneration.Model;
@@ -26,6 +28,14 @@ public class Scope : IServiceContext, IServiceProviderIsService
     #endregion
 
 {
+    private static int scopeCounter = 0;
+    private readonly int scopeId = Interlocked.Increment(ref scopeCounter);
+
+    public void WriteLine(string message)
+    {
+        Debug.WriteLine($"Scope:{scopeId} - {message}");
+    }
+
     protected bool _hasDisposed;
 
     // don't build this if you don't need it

@@ -215,9 +215,12 @@ public class ConstructorInstance : GeneratedInstance, IConfiguredInstance
 
     private object quickResolve(Scope scope)
     {
+        scope.WriteLine($"ConstructorInstance.quickResolve(): {ServiceType.FullNameInCode()}");
+
         var holdingScope = Lifetime == ServiceLifetime.Singleton ? scope.Root : scope;
         if (tryGetService(holdingScope, out var cached))
         {
+            scope.WriteLine($"ConstructorInstance.quickResolve() - already cached: {ServiceType.FullNameInCode()}");
             return cached;
         }
 
@@ -226,10 +229,20 @@ public class ConstructorInstance : GeneratedInstance, IConfiguredInstance
             new ErrorMessageResolver(this).Resolve(scope);
         }
 
-        var values = Arguments.Select(x => x.Instance.QuickResolve(holdingScope)).ToArray();
+        scope.WriteLine($"ConstructorInstance.quickResolve() - resolve arguments: {ServiceType.FullNameInCode()}");
+        var values = Arguments.Select(x =>
+        {
+            scope.WriteLine($"ConstructorInstance.quickResolve() - resolve arguments ({x.Parameter.ParameterType.FullNameInCode()}, {x.Instance.GetType().FullNameInCode()}): {ServiceType.FullNameInCode()}");
+            return x.Instance.QuickResolve(holdingScope);
+        }).ToArray();
         var service = Activator.CreateInstance(ImplementationType, values);
 
-        foreach (var setter in _setters) setter.ApplyQuickBuildProperties(service, scope);
+        scope.WriteLine($"ConstructorInstance.quickResolve() - apply setters: {ServiceType.FullNameInCode()}");
+        foreach (var setter in _setters)
+        {
+            scope.WriteLine($"ConstructorInstance.quickResolve() - apply setters ({setter.Property.Name}): {ServiceType.FullNameInCode()}");
+            setter.ApplyQuickBuildProperties(service, scope);
+        }
 
         switch (service)
         {
@@ -255,6 +268,7 @@ public class ConstructorInstance : GeneratedInstance, IConfiguredInstance
             }
         }
 
+        scope.WriteLine($"ConstructorInstance.quickResolve() - store: {ServiceType.FullNameInCode()}");
         if (Lifetime != ServiceLifetime.Transient)
         {
             store(holdingScope, service);
